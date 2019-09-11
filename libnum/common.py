@@ -3,6 +3,8 @@
 import math
 import random
 
+from functools import reduce
+
 
 def len_in_bits(n):
     """
@@ -13,7 +15,7 @@ def len_in_bits(n):
     except AttributeError:
         if n == 0:
             return 0
-        return len(bin(n)) - 2
+        return math.floor(math.log2(abs(n))) + 1
 
 
 def randint_bits(size):
@@ -22,19 +24,19 @@ def randint_bits(size):
     return random.randint(low, hi)
 
 
-def ceil(x, y):
-    return x / y + (x % y != 0)
+def ceildiv(x, y):
+    q, r = divmod(x, y)
+    return q + int(r != 0)
 
 
 def nroot(x, n):
     """
-    Return truncated n'th root of x.
+    Return the floor of the n'th root of x.
     """
-    if n < 0:
-        raise ValueError("can't extract negative root")
-
-    if n == 0:
-        raise ValueError("can't extract zero root")
+    if n <= 0:
+        raise ValueError("can't extract %s root" % ("negative"
+                                                    if n < 0
+                                                    else "zero"))
 
     sign = 1
     if x < 0:
@@ -61,10 +63,9 @@ def nroot(x, n):
 
 def _gcd(a, b):
     """
-    Return greatest common divisor using Euclid's Algorithm.
+    Return the greatest common divisor of a and b using Euclid's Algorithm.
     """
-    if a == 0: return b
-    if b == 0: return a
+    if a == 0: return abs(b)
     while b:
         a, b = b, a % b
     return abs(a)
@@ -72,7 +73,7 @@ def _gcd(a, b):
 
 def _lcm(a, b):
     """
-    Return lowest common multiple.
+    Return the least common multiple of a and b.
     """
     if not a or not b:
         raise ZeroDivisionError("lcm arguments may not be zeros")
@@ -83,30 +84,28 @@ def gcd(*lst):
     """
     Return gcd of a variable number of arguments.
     """
-    return abs(reduce(lambda a, b: _gcd(a, b), lst))
+    return abs(reduce(_gcd, lst))
 
 
 def lcm(*lst):
     """
     Return lcm of a variable number of arguments.
     """
-    return reduce(lambda a, b: _lcm(a, b), lst)
+    return abs(reduce(_lcm, lst))
 
 
 def xgcd(a, b):
     """
-    Extented Euclid GCD algorithm.
+    Extended Euclidian GCD algorithm.
     Return (x, y, g) : a * x + b * y = gcd(a, b) = g.
     """
     if a == 0: return 0, 1, b
-    if b == 0: return 1, 0, a
 
     px, ppx = 0, 1
     py, ppy = 1, 0
 
     while b:
-        q = a // b
-        a, b = b, a % b
+        a, q, b = b, *divmod(a, b)
         x = ppx - q * px
         y = ppy - q * py
         ppx, px = px, x
@@ -115,22 +114,29 @@ def xgcd(a, b):
     return ppx, ppy, a
 
 
-def extract_prime_power(a, p):
+def extract_power(a, p):
     """
-    Return s, t such that  a = p**s * t,  t % p = 0
+    Return s, t such that  a = p**s * t,  t % p != 0
     """
     s = 0
     if p > 2:
-        while a and a % p == 0:
+        while a:
+            q, r = divmod(a, p)
+            if r != 0:
+                break
             s += 1
-            a //= p
+            a = q
     elif p == 2:
         while a and a & 1 == 0:
             s += 1
             a >>= 1
     else:
-        raise ValueError("Number %d is not a prime (is smaller than 2)" % p)
+        raise ValueError("Number %d is smaller than 2" % p)
     return s, a
+
+
+def extract_prime_power(a, p):
+    return extract_power(a, p)
 
 
 def solve_linear(a, b, c):
