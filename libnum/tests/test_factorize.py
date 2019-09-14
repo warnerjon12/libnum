@@ -1,6 +1,7 @@
 #-*- coding:utf-8 -*-
 
 import pytest
+import random
 
 from functools import reduce
 from libnum.factorize import factorize
@@ -44,7 +45,7 @@ def test_zero():
 
 
 def test_small():
-    assertEqual(factorize(1), {1: 1})
+    assertEqual(factorize(1), {})
     assertEqual(factorize(2), {2: 1})
     assertEqual(factorize(3), {3: 1})
     assertEqual(factorize(4), {2: 2})
@@ -54,6 +55,39 @@ def test_small():
     assertEqual(factorize(8), {2: 3})
     assertEqual(factorize(9), {3: 2})
     assertEqual(factorize(10), {2: 1, 5: 1})
+
+
+pvals = [2, 3, 5, 7, 11, 13, 17, 23, 31, 41, 53, 67, 83, 107, 139, 179, 227,
+         277, 353, 439, 557, 673, 829, 1021, 1249, 1523, 1861, 2243, 2689,
+         3221, 3821, 4517, 5323, 6203, 7187, 8287, 9437, 10723, 12143, 13591,
+         15131, 16703, 18371, 20161, 21961, 23767, 25693, 27689, 29573, 31627,
+         33587, 35597, 37643, 39821, 41903, 43997, 46181, 48371, 50423, 52631,
+         54787, 56929, 59083, 61363, 63599, 65827, 67993, 70379, 72533, 74771,
+         77069, 79333, 81533, 83777, 86137, 88469, 90647, 92867, 95177, 97463,
+         99793, 102061, 104473]
+
+
+def test_prime_powers():
+    print("")
+    for i in range(len(pvals)):
+        print("Testing prime power % 3d/%d" % (i, len(pvals)))
+        p = pvals[i]
+        for e in (list(range(1, 10)) + [10, 20, 50, 100]):
+            assertEqual(factorize(p ** e), {p: e})
+
+
+def test_composite_powers():
+    count = 20
+    print("")
+    for i in range(count):
+        print("Testing composite power % 3d/%d" % (i, count))
+        p = list(random.sample(pvals, random.randint(2, 5)))
+        k = [random.randint(1, 3) for _ in range(len(p))]
+        n = reduce(lambda x, y: x * y, (p[i] ** k[i]
+                                        for i in range(len(p))))
+        for e in (1, 2, 5, 10, 20, 50):
+            assertEqual(factorize(n ** e), {p[i]: k[i] * e
+                                            for i in range(len(p))})
 
 
 def test_small_negative():

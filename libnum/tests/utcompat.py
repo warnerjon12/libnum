@@ -9,11 +9,17 @@ from collections import Counter
 
 
 def assertEqual(a, b):
-    assert a == b
+    if isinstance(a, dict) and isinstance(b, dict):
+        assert all(k in b and a[k] == b[k] for k in a)
+    else:
+        assert a == b
 
 
 def assertNotEqual(a, b):
-    assert a != b
+    if isinstance(a, dict) and isinstance(b, dict):
+        assert any(k not in b or a[k] != b[k] for k in a)
+    else:
+        assert a != b
 
 
 def assertTrue(expr):

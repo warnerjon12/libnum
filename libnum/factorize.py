@@ -10,13 +10,11 @@ import random
 from functools import reduce
 from .compat import xrange
 from .primes import primes, prime_test
-from .common import gcd, nroot
-
+from .common import _gcd, gcd, nroot
 
 __all__ = "factorize unfactorize".split()
 
 
-_PRIMES_CHECK = primes(100)
 _PRIMES_P1 = primes(100)
 
 
@@ -41,60 +39,96 @@ def rho_pollard_reduce(n, f):
             return g
 
 
+def brent_reduce(n, x0=0, m=1, f=None):
+    # Brent's improved Pollard-Rho implementation
+    if f is None:
+        f = lambda x: (x ** 2 + 3) % n
+
+    y, r, q = x0, 1, 1
+    while True:
+        x = y
+        for i in xrange(r):
+            y = f(y)
+        k = 0
+        while True:
+            ys = y
+            for i in xrange(min(m, r - k)):
+                y = f(y)
+                q = (q * (x - y)) % n
+            G = _gcd(q, n)
+            k += m
+            if k >= r or G > 1:
+                break
+        r *= 2
+        if G > 1:
+            break
+    if G == n:
+        while True:
+            ys = f(ys)
+            g = _gcd(abs(x - ys), n)
+            if G > 1:
+                break
+    return G
+
+
 _FUNC_REDUCE = lambda n: rho_pollard_reduce(n, lambda x: (pow(x, 2, n) + 1) % n)
 
 
-def factorize(n):
+def factorize(n, td_primes=primes(100)):
     """
-    Use _FUNC_REDUCE (defaults to rho-pollard method) to factorize @n
-    Return a dict like {p: e}
+    Return a dict {p: e for p**e in prime_powers(n)}
     """
-    if n in (0, 1):
-        return {n: 1}
-
     prime_factors = {}
 
     if n < 0:
         n = -n
         prime_factors[-1] = 1
 
-    for p in _PRIMES_CHECK:
-        while n % p == 0:
-            prime_factors[p] = prime_factors.get(p, 0) + 1
-            n //= p
-
-    factors = [n]
-    if n == 1:
-        if not prime_factors:
-            prime_factors[1] = 1
+    if n == 0:
+        prime_factors[0] = 1
         return prime_factors
 
-    while factors:
-        n = factors.pop()
+    def divfactor(n, p):
+        e = 0
+        while True:
+            q, r = divmod(n, p)
+            if r != 0:
+                break
+            n = q
+            e += 1
+        return n, e
 
-        if prime_test(n):
-            p = n
-            prime_factors[p] = prime_factors.get(p, 0) + 1
-            continue
+    for p in td_primes:
+        n, e = divfactor(n, p)
+        if e > 0:
+            prime_factors[p] = e
 
-        is_pp = is_power(n)
-        if is_pp:
-            if prime_test(p):
-                p, e = is_pp
-                prime_factors[p] = prime_factors.get(p, 0) + e
-                continue
-            # else we need to factor @p and remember power
-            # it's not implemented now
-            # / it doesn't fasten factorize much
+    def combine(d1, d2):
+        for k in d2:
+            d1[k] = d1.get(k, 0) + d2[k]
+        return d1
 
-        divizor = _FUNC_REDUCE(n)
-        other = n // divizor
-        factors.append(divizor)
-        if other > 1:
-            factors.append(other)
+    def brent_factorize(n):
+        if n == 1:
+            return {}
+        elif prime_test(n):
+            return {n: 1}
+        for c in xrange(1, min(0x7fffffff, n)):
+            p = brent_reduce(n, f=lambda x: (x ** 2 + c) % n)
+            if p != n:
+                if prime_test(p):
+                    n, e = divfactor(n, p)
+                    return combine({p: e}, brent_factorize(n))
+                else:
+                    bfactors = brent_factorize(p)
+                    for p in bfactors:
+                        n, e = divfactor(n, p)
+                        bfactors[p] = e
+                    return combine(bfactors, brent_factorize(n))
+        raise ValueError("Failed to factorize %d" % n)
 
-    if not prime_factors:
-        prime_factors[1] = 1
+    prime_factors = combine(prime_factors, brent_factorize(n))
+
     return prime_factors
 
 
