@@ -1,7 +1,10 @@
 #-*- coding:utf-8 -*-
 
 import pytest
+import random
+
 from libnum import *
+from libnum.common import _gcd
 from utcompat import *
 
 
@@ -80,3 +83,22 @@ def test_lcm_list():
     assertRaises(ZeroDivisionError, lcm, 0, 100, 123)
     assertRaises(TypeError, lcm, "qwe", 10)
     assertRaises(TypeError, lcm, 10, "qwe")
+
+
+def test_solve_linear():
+    test_cases = [(0, 0, 0), (0, 0, 1), (0, 0, 2), (0, 1, 0), (0, 1, 1),
+                  (0, 1, 2), (0, 2, 0), (0, 2, 1), (0, 2, 2), (1, 0, 0),
+                  (1, 0, 1), (1, 0, 2), (1, 1, 0), (1, 1, 1), (1, 1, 2),
+                  (1, 2, 0), (1, 2, 1), (1, 2, 2), (2, 0, 0), (2, 0, 1),
+                  (2, 0, 2), (2, 1, 0), (2, 1, 1), (2, 1, 2), (2, 2, 0),
+                  (2, 2, 1), (2, 2, 2)] + \
+                  list(random.sample([(x, y, z)
+                                      for x in range(100)
+                                      for y in range(100)
+                                      for z in range(100)], 1000))
+    for a, b, c in test_cases:
+        if (a == 0 and b == 0 and c != 0) or ((a or b) and c % _gcd(a, b) != 0):
+            assert solve_linear(a, b, c) is None
+        else:
+            x, y = solve_linear(a, b, c)
+            assert a * x + b * y == c

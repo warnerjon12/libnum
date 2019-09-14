@@ -105,7 +105,6 @@ def xgcd(a, b):
     Return (x, y, g) : a * x + b * y = gcd(a, b) = g.
     """
     if a == 0: return 0, 1, b
-    if b == 0: return 1, 0, a
 
     px, ppx = 0, 1
     py, ppy = 1, 0
@@ -142,8 +141,14 @@ def extract_prime_power(a, p):
 def solve_linear(a, b, c):
     """
     Solve a*x + b*y = c.
-    Solution (x0 + b*n, y0 + a*n).
+    Solution (x0 + b*n, y0 - a*n).
     Return None or (x0, y0).
     """
-    #TODO: do
-    return None
+    x, y, g = xgcd(a, b)
+    try:
+        q, r = divmod(c, g)
+    except ZeroDivisionError: # i.e. both a and b are zero
+        return (0, 0) if c == 0 else None
+    if r != 0:
+        return None
+    return x * q, y * q
