@@ -16,7 +16,7 @@ def len_in_bits(n):
     except AttributeError:
         if n == 0:
             return 0
-        return len(bin(n)) - 2
+        return math.floor(math.log2(n)) + 1
 
 
 def randint_bits(size):
@@ -26,7 +26,8 @@ def randint_bits(size):
 
 
 def ceil(x, y):
-    return x // y + int(x % y != 0)
+    q, r = divmod(x, y)
+    return q + int(r != 0)
 
 
 def nroot(x, n):
@@ -120,21 +121,30 @@ def xgcd(a, b):
     return ppx, ppy, a
 
 
+def extract_power2(a):
+    """
+    Optimized version of extract_prime_power for p=2
+    """
+    s = 0
+    while True:
+        if a & 1:
+            break
+        a >>= 1
+        s += 1
+    return s, a
+
+
 def extract_prime_power(a, p):
     """
     Return s, t such that  a = p**s * t,  t % p = 0
     """
     s = 0
-    if p > 2:
-        while a and a % p == 0:
-            s += 1
-            a //= p
-    elif p == 2:
-        while a and a & 1 == 0:
-            s += 1
-            a >>= 1
-    else:
-        raise ValueError("Number %d is not a prime (is smaller than 2)" % p)
+    while True:
+        q, r = divmod(a, p)
+        if r != 0:
+            break
+        a = q
+        s += 1
     return s, a
 
 

@@ -10,7 +10,7 @@ import random
 from functools import reduce
 from .compat import xrange
 from .primes import primes, prime_test
-from .common import _gcd, gcd, nroot
+from .common import _gcd, gcd, nroot, extract_prime_power
 
 __all__ = "factorize unfactorize".split()
 
@@ -71,9 +71,6 @@ def brent_reduce(n, x0=0, m=1, f=None):
     return G
 
 
-_FUNC_REDUCE = lambda n: rho_pollard_reduce(n, lambda x: (pow(x, 2, n) + 1) % n)
-
-
 def factorize(n, td_primes=primes(100)):
     """
     Return a dict {p: e for p**e in prime_powers(n)}
@@ -88,18 +85,8 @@ def factorize(n, td_primes=primes(100)):
         prime_factors[0] = 1
         return prime_factors
 
-    def divfactor(n, p):
-        e = 0
-        while True:
-            q, r = divmod(n, p)
-            if r != 0:
-                break
-            n = q
-            e += 1
-        return n, e
-
     for p in td_primes:
-        n, e = divfactor(n, p)
+        e, n = extract_prime_power(n, p)
         if e > 0:
             prime_factors[p] = e
 
@@ -117,12 +104,12 @@ def factorize(n, td_primes=primes(100)):
             p = brent_reduce(n, f=lambda x: (x ** 2 + c) % n)
             if p != n:
                 if prime_test(p):
-                    n, e = divfactor(n, p)
+                    e, n = extract_prime_power(n, p)
                     return combine({p: e}, brent_factorize(n))
                 else:
                     bfactors = brent_factorize(p)
                     for p in bfactors:
-                        n, e = divfactor(n, p)
+                        e, n = extract_prime_power(n, p)
                         bfactors[p] = e
                     return combine(bfactors, brent_factorize(n))
         raise ValueError("Failed to factorize %d" % n)
