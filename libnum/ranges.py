@@ -15,17 +15,20 @@ max([]) = ValueError
 
 class Ranges(object):
     """
-    Represent Int-ranges unions
-    Example: 3-10 or 15-30 or 31-31
+    Class for representing subsets of the integers
+    as a union of integer ranges.
+    Example: 3-10 U 15-31
+
     - operators:
         intersection ( & )
         union ( | )
-    - iterator yields all integers from ranges
+    - iterator yields all integers in order from least to greatest
     - .segments property - tuple of segments
         - len(R.segments) - count of segments
         - iter(R.segments) - iterator for segments
         - etc.
-    - add_range method - unite with (x, y) range
+    - add_range(self, x, y):
+        functional equivalent of self |= Ranges((x, y))
     """
 
     def __init__(self, *ranges):

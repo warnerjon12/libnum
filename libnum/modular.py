@@ -8,50 +8,48 @@ from .common import *
 from .stuff import *
 
 
-def has_invmod(a, modulus):
+def has_invmod(a, m):
     """
-    Check if @a can be inversed under @modulus.
-    Call this before calling invmod.
+    Check if a has an inverse modulo m.
     """
-    if modulus < 2:
+    if m < 2:
         raise ValueError("modulus must be greater than 1")
 
-    if a == 0 or gcd(a, modulus) != 1:
-        return False
-    else:
-        return True
+    # This statement along with the above check covers all edge cases
+    return _gcd(a, m) == 1
 
 
-def invmod(a, n):
+def invmod(a, m):
     """
-    Return 1 / a (mod n).
-    @a and @n must be co-primes.
+    Return a**-1 (mod m).
+    a and m must be coprime integers.
     """
-    if n < 2:
+    if m < 2:
         raise ValueError("modulus must be greater than 1")
 
-    x, y, g = xgcd(a, n)
+    x, y, g = xgcd(a, m)
 
     if g != 1:
-        raise ValueError("no invmod for given @a and @n")
+        raise ValueError("%d has no inverse mod %d" % (a, m))
     else:
-        return x % n
+        return x % m
 
 
 def solve_crt(remainders, moduli):
     """
     Solve Chinese Remainder Theorem.
-    moduli and remainders are lists.
-    moduli must be pairwise coprime.
+    All moduli must be pairwise coprime.
+    Return x : all((x - remainders[i]) % moduli[i] == 0
+                   for i in range(len(moduli))).
     """
     if len(moduli) != len(remainders):
-        raise TypeError("moduli and remainders lists must have same len")
+        raise ValueError("Different number of remainders and moduli")
 
     if len(moduli) == 0:
-        raise ValueError("Empty lists are given")
+        raise ValueError("No moduli were given")
 
     if len(moduli) == 1:
-        return remainders[0]
+        return remainders[0] % moduli[0]
 
     x = 0
     N = reduce(operator.mul, moduli)
@@ -66,25 +64,27 @@ def solve_crt(remainders, moduli):
     return x % N
 
 
-def nCk_mod(n, k, factors):
+def nCk_mod(n, k, m_factors):
     """
-    Compute nCk modulo, factorization of modulus is needed
+    Compute n choose k mod m.
+    The factorization of m is needed.
     """
     rems = []
     mods = []
-    for p, e in factors.items():
+    for p, e in m_factors.items():
         rems.append(nCk_mod_prime_power(n, k, p, e))
         mods.append(p ** e)
     return solve_crt(rems, mods)
 
 
-def factorial_mod(n, factors):
+def factorial_mod(n, m_factors):
     """
-    Compute factorial modulo, factorization of modulus is needed
+    Compute n! mod m.
+    The factorization of m is needed.
     """
     rems = []
     mods = []
-    for p, e in factors.items():
+    for p, e in m_factors.items():
         pe = p ** e
         if n >= pe or factorial_get_prime_pow(n, p) >= e:
             factmod = 0
@@ -97,7 +97,7 @@ def factorial_mod(n, factors):
 
 def nCk_mod_prime_power(n, k, p, e):
     """
-    Compute nCk mod small prime power: p**e
+    Compute n choose k mod p**e
     Algorithm by Andrew Granville:
         http://www.dms.umontreal.ca/~andrew/PDF/BinCoeff.pdf
     What can be optimized:

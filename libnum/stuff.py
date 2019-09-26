@@ -27,19 +27,19 @@ def factorial(n):
 
 def factorial_get_prime_pow(n, p):
     """
-    Return power of prime @p in @n!
+    Return the largest k such that p**k divides n!.
     """
-    count = 0
+    k = 0
     ppow = p
     while ppow <= n:
-        count += n // ppow
+        k += n // ppow
         ppow *= p
-    return count
+    return k
 
 
 def nCk(n, k):
     """
-    Combinations number
+    Return n choose k.
     """
     if n < 0: raise ValueError("Invalid value for n: %s" % n)
     if k < 0 or k > n: return 0

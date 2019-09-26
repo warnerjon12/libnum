@@ -9,7 +9,7 @@ from .compat import xrange, math_log2
 
 def len_in_bits(n):
     """
-    Return number of bits in binary representation of @n.
+    Return the number of bits in the binary representation of n.
     """
     try:
         return n.bit_length() # new in Python 2.7
@@ -32,20 +32,22 @@ def ceil(x, y):
 
 def nroot(x, n):
     """
-    Return truncated n'th root of x.
+    Return the truncated n'th root of x.
     """
+    ierror = ValueError("Imaginary result")
+
     if n < 0:
-        raise ValueError("can't extract negative root")
+        raise ierror
 
     if n == 0:
-        raise ValueError("can't extract zero root")
+        raise OverflowError("Infinite result")
 
     sign = 1
     if x < 0:
         sign = -1
         x = -x
         if n % 2 == 0:
-            raise ValueError("can't extract even root of negative")
+            raise ierror
 
     high = 1
     while high ** n <= x:
@@ -69,7 +71,7 @@ except AttributeError:
 
     def _gcd(a, b):
         """
-        Return greatest common divisor using Euclid's Algorithm.
+        Return the greatest common divisor of a and b using Euclid's Algorithm.
         """
         if a == 0: return abs(b)
         while b:
@@ -79,7 +81,7 @@ except AttributeError:
 
 def _lcm(a, b):
     """
-    Return lowest common multiple.
+    Return the least common multiple of a and b.
     """
     if not a or not b:
         raise ZeroDivisionError("lcm arguments may not be zeros")
@@ -102,7 +104,7 @@ def lcm(*lst):
 
 def xgcd(a, b):
     """
-    Extented Euclid GCD algorithm.
+    Implements the extended Euclidean GCD algorithm.
     Return (x, y, g) : a * x + b * y = gcd(a, b) = g.
     """
     if a == 0: return 0, 1, b
@@ -123,7 +125,7 @@ def xgcd(a, b):
 
 def extract_power2(a):
     """
-    Optimized version of extract_prime_power for p=2
+    Optimized version of extract_power for p=2
     """
     s = 0
     while True:
@@ -134,7 +136,7 @@ def extract_power2(a):
     return s, a
 
 
-def extract_prime_power(a, p):
+def extract_power(a, p):
     """
     Return s, t such that  a = p**s * t,  t % p = 0
     """
@@ -148,10 +150,14 @@ def extract_prime_power(a, p):
     return s, a
 
 
+def extract_prime_power(a, p):
+    return extract_power(a, p)
+
+
 def solve_linear(a, b, c):
     """
     Solve a*x + b*y = c.
-    Solution (x0 + b*n, y0 - a*n).
+    Solution set: (x, y) = (x0 + b*n, y0 - a*n).
     Return None or (x0, y0).
     """
     x, y, g = xgcd(a, b)

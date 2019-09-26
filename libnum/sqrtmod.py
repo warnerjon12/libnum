@@ -10,15 +10,15 @@ from .common import *
 from .modular import *
 
 
-def has_sqrtmod(a, factors=None):
+def has_sqrtmod(a, m_factors=None):
     """
-    Check if @a is quadratic residue, factorization needed
-    @factors - list of (prime, power) tuples
+    Check if a is a quadratic residue mod m.
+    The factorization of m is needed.
     """
-    if not factors:
-        raise ValueError("Factors can't be empty: %s" % factors)
+    if not m_factors:
+        raise ValueError("Factors can't be empty: %s" % m_factors)
 
-    for p, k in factors.items():
+    for p, k in m_factors.items():
         if p <= 1 or k <= 0:
             raise ValueError("Not valid prime power: %s**%s" % (p, k))
 
@@ -27,17 +27,16 @@ def has_sqrtmod(a, factors=None):
     return True
 
 
-def sqrtmod(a, factors):
+def sqrtmod(a, m_factors):
     """
-    x ^ 2 = a (mod *factors).
-    Yield square roots by product of @factors as modulus.
-    @factors - list of (prime, power) tuples
+    Return x : (x**2 - a) == 0 (mod m).
+    The factorization of m is needed.
     """
-    coprime_factors = [p ** k for p, k in factors.items()]
+    coprime_factors = [p ** k for p, k in m_factors.items()]
     #n = reduce(operator.mul, coprime_factors)
 
     sqrts = []
-    for i, (p, k) in enumerate(factors.items()):
+    for i, (p, k) in enumerate(m_factors.items()):
         # it's bad that all roots by each modulus are calculated here
         # - we can start yielding roots faster
         sqrts.append( list(sqrtmod_prime_power(a % coprime_factors[i], p, k) ) )
@@ -47,17 +46,17 @@ def sqrtmod(a, factors):
     return
 
 
-def has_sqrtmod_prime_power(a, p, n=1):
+def has_sqrtmod_prime_power(a, p, k=1):
     """
-    Check if @a (mod @p**@n) is quadratic residue, @p is prime.
+    Check if a is a quadratic residue mod p**k, where p is prime.
     """
     if p < 2:
         raise ValueError("Prime must be greater than 1: " + str(p))
 
-    if n < 1:
-        raise ValueError("Prime power must be positive: " + str(n))
+    if k < 1:
+        raise ValueError("Prime power must be positive: " + str(k))
 
-    a = a % (p ** n)
+    a = a % (p ** k)
 
     if a in (0, 1):
         return True
@@ -68,7 +67,7 @@ def has_sqrtmod_prime_power(a, p, n=1):
         if e & 1:
             return False
         else:
-            return has_sqrtmod_prime_power(a, p, n)
+            return has_sqrtmod_prime_power(a, p, k)
 
     if p == 2:  # power of 2
         return a % 8 == 1
@@ -77,9 +76,7 @@ def has_sqrtmod_prime_power(a, p, n=1):
 
 def sqrtmod_prime_power(a, p, k=1):
     """
-    Yield square roots of @a mod @p**@k,
-    @p - prime
-    @k >= 1
+    Return x : (x**2 - a) == 0 (mod p**k), where p is prime.
     """
     if k < 1:
         raise ValueError("prime power k < 1: %d" % k)
@@ -118,7 +115,7 @@ def sqrtmod_prime_power(a, p, k=1):
             c = pow(c, 2, p)
         return (r, (-r) % p)  # both roots
 
-    # x**2 == a (mod p**k),  p is prime,  gcd(a, p) == 1
+    # x**2 == a (mod p**k), p is prime, gcd(a, p) == 1
     def sqrtmod_prime_power_for_coprime(a, p, k):
         if a == 1:
             if p == 2:
@@ -172,7 +169,7 @@ def sqrtmod_prime_power(a, p, k=1):
             return r % pow_p, (-r) % pow_p
         return
 
-    # x**2 == 0 (mod p**k),  p is prime
+    # x**2 == 0 (mod p**k), p is prime
     def sqrt_for_zero(p, k):
         roots = [0]
         start_k = (k // 2 + 1) if k & 1 else (k // 2)
@@ -197,7 +194,8 @@ def sqrtmod_prime_power(a, p, k=1):
     e, a = extract_prime_power(a, p)
 
     if e & 1:
-        raise ValueError("No square root for %d (mod %d**%d)" % (a, p, k))
+        raise ValueError("%d is not a quadratic residue mod %d**%d)" %
+                         (a, p, k))
 
     p_acc = powers[e >> 1]
     sqrt_k = k - e
@@ -225,7 +223,7 @@ def sqrtmod_prime_power(a, p, k=1):
 
 def jacobi(a, n):
     """
-    Return Jacobi symbol (or Legendre symbol if n is prime)
+    Compute the Jacobi symbol.
     """
     while True:
         if n < 1:
@@ -251,3 +249,7 @@ def jacobi(a, n):
 
         a, n = n, a
     return
+
+
+def legendre(a, p):
+    return jacobi(a, p)

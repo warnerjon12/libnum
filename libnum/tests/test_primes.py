@@ -23,7 +23,7 @@ def test_genprime():
             p = generate_prime(size, k=25)
             assertEqual(len_in_bits(p), size)
 
-            assertTrue(prime_test_ferma(p, k=25))
+            assertTrue(prime_test_fermat(p, k=25))
             assertTrue(prime_test_solovay_strassen(p, k=25))
             assertTrue(prime_test_miller_rabin(p, k=25))
             assertTrue(prime_test(p, k=25))
@@ -58,7 +58,7 @@ def do_test_prime_test(func):
 
 
 def test_fermatest():
-    return do_test_prime_test(prime_test_ferma)
+    return do_test_prime_test(prime_test_fermat)
 
 
 def test_solovay():

@@ -28,7 +28,7 @@ def _init():
 
 def primes(until):
     """
-    Return list of primes not greater than @until. Rather slow.
+    Return a list of primes not greater than until. Rather slow.
     """
     global _primes, _primes_mask
 
@@ -55,8 +55,9 @@ def primes(until):
 
 def generate_prime(size, k=25):
     """
-    Generate a pseudo-prime with @size bits length.
-    Optional arg @k=25 defines number of tests.
+    Generate a probable prime with bit-length size.
+    Optional argument k (default 25) determines
+    the number of rounds used in primality testing.
     """
     if size < 2:
         raise ValueError("No primes smaller than 2 bits!")
@@ -77,9 +78,10 @@ def generate_prime(size, k=25):
 
 def generate_prime_from_string(s, size=None, k=25):
     """
-    Generate a pseudo-prime starting with @s in string representation.
-    Optional arg @size defines length in bits, if is not set than +some bytes.
-    Optional arg @k=25 defines number of tests.
+    Generate a probable prime starting with s in its string representation.
+    Optional argument size determines the bit-length of the returned value.
+    Optional argument k (default 25) determines
+    the number of rounds used in primality testing.
     """
     if not size:
         if len(s) > 512:
@@ -109,10 +111,10 @@ def generate_prime_from_string(s, size=None, k=25):
     return
 
 
-def prime_test_ferma(p, k=25):
+def prime_test_fermat(p, k=25):
     """
-    Test for primality based on Ferma's Little Theorem
-    Totally fails in Carmichael'e numbers
+    Test for primality based on Fermat's Little Theorem.
+    Fails on Carmichael numbers.
     """
     if p < 2: return False
     if p <= 3: return True
@@ -131,8 +133,8 @@ def prime_test_ferma(p, k=25):
 
 def prime_test_solovay_strassen(p, k=25):
     """
-    Test for primality by Solovai-Strassen
-    Stronger than Ferma's test
+    Test for primality using Solovay-Strassen.
+    Stronger than Fermat's test.
     """
     if p < 2: return False
     if p <= 3: return True
@@ -154,8 +156,8 @@ def prime_test_solovay_strassen(p, k=25):
 
 def prime_test_miller_rabin(p, k=25):
     """
-    Test for primality by Miller-Rabin
-    Stronger than Solovay-Strassen's test
+    Test for primality using Miller-Rabin.
+    Stronger than Solovay-Strassen's test.
     """
     if p < 2: return False
     if p <= 3: return True
