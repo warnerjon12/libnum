@@ -73,7 +73,7 @@ def brent_reduce(n, x0=0, m=1, f=None):
 
 def factorize(n, td_primes=primes(100)):
     """
-    Return a dict {p: e for p**e in prime_powers(n)}
+    Return {p: e for p**e in prime_powers(n)}.
     """
     prime_factors = {}
 
@@ -114,9 +114,7 @@ def factorize(n, td_primes=primes(100)):
                     return combine(bfactors, brent_factorize(n))
         raise ValueError("Failed to factorize %d" % n)
 
-    prime_factors = combine(prime_factors, brent_factorize(n))
-
-    return prime_factors
+    return combine(prime_factors, brent_factorize(n))
 
 
 def unfactorize(factors):

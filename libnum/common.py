@@ -36,11 +36,8 @@ def nroot(x, n):
     """
     ierror = ValueError("Imaginary result")
 
-    if n < 0:
-        raise ierror
-
-    if n == 0:
-        raise OverflowError("Infinite result")
+    if n <= 0:
+        raise ierror if n else OverflowError("Infinite result")
 
     sign = 1
     if x < 0:
@@ -85,14 +82,14 @@ def _lcm(a, b):
     """
     if not a or not b:
         raise ZeroDivisionError("lcm arguments may not be zeros")
-    return abs(a * b) // _gcd(a, b)
+    return abs(a * (b // _gcd(a, b)))
 
 
 def gcd(*lst):
     """
     Return gcd of a variable number of arguments.
     """
-    return abs(reduce(lambda a, b: _gcd(a, b), lst))
+    return abs(reduce(_gcd, lst))
 
 
 def lcm(*lst):
@@ -113,8 +110,8 @@ def xgcd(a, b):
     py, ppy = 1, 0
 
     while b:
-        q = a // b
-        a, b = b, a % b
+        q, r = divmod(a, b)
+        a, b = b, r
         x = ppx - q * px
         y = ppy - q * py
         ppx, px = px, x

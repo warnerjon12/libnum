@@ -10,33 +10,35 @@ from .common import *
 from .modular import *
 
 
-def has_sqrtmod(a, m_factors=None):
+def has_sqrtmod(a, m, factors=None):
     """
     Check if a is a quadratic residue mod m.
-    The factorization of m is needed.
+    The factorization of m may be given or will be computed.
     """
-    if not m_factors:
-        raise ValueError("Factors can't be empty: %s" % m_factors)
+    factors = _get_factor_items(m, factors)
+    if not factors: # i.e. m == 1
+        return True
 
-    for p, k in m_factors.items():
+    for p, k in factors:
         if p <= 1 or k <= 0:
-            raise ValueError("Not valid prime power: %s**%s" % (p, k))
+            raise ValueError("Not a valid prime power: %s**%s" % (p, k))
 
         if not has_sqrtmod_prime_power(a, p, k):
             return False
     return True
 
 
-def sqrtmod(a, m_factors):
+def sqrtmod(a, m, factors=None):
     """
     Return x : (x**2 - a) == 0 (mod m).
-    The factorization of m is needed.
+    The factorization of m may be given or will be computed.
     """
-    coprime_factors = [p ** k for p, k in m_factors.items()]
+    factors = _get_factor_items(m, factors)
+    coprime_factors = [p ** k for p, k in factors]
     #n = reduce(operator.mul, coprime_factors)
 
     sqrts = []
-    for i, (p, k) in enumerate(m_factors.items()):
+    for i, (p, k) in enumerate(factors):
         # it's bad that all roots by each modulus are calculated here
         # - we can start yielding roots faster
         sqrts.append( list(sqrtmod_prime_power(a % coprime_factors[i], p, k) ) )
@@ -56,7 +58,7 @@ def has_sqrtmod_prime_power(a, p, k=1):
     if k < 1:
         raise ValueError("Prime power must be positive: " + str(k))
 
-    a = a % (p ** k)
+    a %= p ** k
 
     if a in (0, 1):
         return True
@@ -95,7 +97,7 @@ def sqrtmod_prime_power(a, p, k=1):
             return (1, p-1) if p != 2 else (1,)
 
         if jacobi(a, p) == -1:
-            raise ValueError("No square root for %d (mod %d)" % (a, p))
+            raise ValueError("%d is not a quadratic residue mod %d" % (a, p))
 
         while True:
             b = random.randint(1, p - 1)
@@ -227,9 +229,11 @@ def jacobi(a, n):
     """
     while True:
         if n < 1:
-            raise ValueError("Too small modulus for Jacobi symbol: " + str(n))
+            raise ValueError("Modulus is too small" +
+                             "to compute the Jacobi symbol: " + str(n))
         if n & 1 == 0:
-            raise ValueError("Jacobi is defined only for odd moduli")
+            raise ValueError("The Jacobi symbol is defined" +
+                             "only for odd moduli")
         if n == 1:
             return 1
 

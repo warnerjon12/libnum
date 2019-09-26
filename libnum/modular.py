@@ -71,16 +71,21 @@ def solve_crt(remainders, moduli):
     return x % N
 
 
+def _get_factor_items(m, factors):
+    if factors is None:
+        try:
+            return m.items()
+        except AttributeError:
+            return factorize(m).items()
+    return factors.items()
+
+
 def nCk_mod(n, k, m, factors=None):
     """
     Compute n choose k mod m.
     The factorization of m may be given or will be computed.
     """
-    if factors is None:
-        try:
-            factors = m.items()
-        except AttributeError:
-            factors = factorize(m).items()
+    factors = _get_factor_items(m, factors)
     rems = []
     mods = []
     for p, e in factors:
@@ -94,11 +99,7 @@ def factorial_mod(n, m, factors=None):
     Compute n! mod m.
     The factorization of m may be given or will be computed.
     """
-    if factors is None:
-        try:
-            factors = m.items()
-        except AttributeError:
-            factors = factorize(m).items()
+    factors = _get_factor_items(m, factors)
     rems = []
     mods = []
     for p, e in factors:
