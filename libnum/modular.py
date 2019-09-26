@@ -3,9 +3,10 @@
 import operator
 
 from functools import reduce
-from .compat import xrange
+from .compat import builtins, xrange
 from .common import *
 from .stuff import *
+from .factorize import factorize
 
 
 def has_invmod(a, m):
@@ -33,6 +34,12 @@ def invmod(a, m):
         raise ValueError("%d has no inverse mod %d" % (a, m))
     else:
         return x % m
+
+
+def pow(a, b, m=None):
+    if b >= 0 or m is None:
+        return builtins.pow(a, b, m)
+    return builtins.pow(invmod(a, m), b, m)
 
 
 def solve_crt(remainders, moduli):
@@ -64,27 +71,37 @@ def solve_crt(remainders, moduli):
     return x % N
 
 
-def nCk_mod(n, k, m_factors):
+def nCk_mod(n, k, m, factors=None):
     """
     Compute n choose k mod m.
-    The factorization of m is needed.
+    The factorization of m may be given or will be computed.
     """
+    if factors is None:
+        try:
+            factors = m.items()
+        except AttributeError:
+            factors = factorize(m).items()
     rems = []
     mods = []
-    for p, e in m_factors.items():
+    for p, e in factors:
         rems.append(nCk_mod_prime_power(n, k, p, e))
         mods.append(p ** e)
     return solve_crt(rems, mods)
 
 
-def factorial_mod(n, m_factors):
+def factorial_mod(n, m, factors=None):
     """
     Compute n! mod m.
-    The factorization of m is needed.
+    The factorization of m may be given or will be computed.
     """
+    if factors is None:
+        try:
+            factors = m.items()
+        except AttributeError:
+            factors = factorize(m).items()
     rems = []
     mods = []
-    for p, e in m_factors.items():
+    for p, e in factors:
         pe = p ** e
         if n >= pe or factorial_get_prime_pow(n, p) >= e:
             factmod = 0
