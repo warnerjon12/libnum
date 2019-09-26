@@ -37,7 +37,7 @@ def nroot(x, n):
     ierror = ValueError("Imaginary result")
 
     if n <= 0:
-        raise ierror if n else OverflowError("Infinite result")
+        raise ierror if n else ValueError("Infinite result")
 
     sign = 1
     if x < 0:

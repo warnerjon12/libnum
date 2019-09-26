@@ -4,8 +4,8 @@ import operator
 
 from functools import reduce
 from .compat import builtins, xrange
-from .common import *
-from .stuff import *
+from .common import _gcd, xgcd
+from .stuff import factorial, factorial_get_prime_pow
 from .factorize import factorize
 
 

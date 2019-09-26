@@ -61,7 +61,7 @@ def test_has_sqrtmod():
     assertRaises(TypeError, has_sqrtmod, "", {(9,): 30})
     assertRaises(ValueError, has_sqrtmod, 1, {2: 0}) # 1 mod 2**0
     assertRaises(ValueError, has_sqrtmod, 1, {1: 2}) # 1 mod 1**2
-    assertRaises(ValueError, has_sqrtmod, 3, {})
+    assert has_sqrtmod(3, {})
 
 
 def test_sqrt_pp_all():

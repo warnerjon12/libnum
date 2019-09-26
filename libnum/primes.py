@@ -5,9 +5,8 @@ import random
 import operator
 
 from functools import reduce
+from .common import _gcd, len_in_bits, extract_prime_power, randint_bits
 from .compat import xrange
-from .sqrtmod import jacobi
-from .common import *
 from .strings import *
 
 _primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31]
@@ -68,7 +67,7 @@ def generate_prime(size, k=25):
     while True:
         n = randint_bits(size) | 1  # only odd
 
-        if gcd(_small_primes_product, n) != 1:
+        if _gcd(_small_primes_product, n) != 1:
             continue
 
         if prime_test(n, k):
@@ -103,7 +102,7 @@ def generate_prime_from_string(s, size=None, k=25):
     while True:
         n = visible_part | random.randint(1, hi) | 1  # only even
 
-        if gcd(_small_primes_product, n) != 1:
+        if _gcd(_small_primes_product, n) != 1:
             continue
 
         if prime_test(n, k):
@@ -122,7 +121,7 @@ def prime_test_fermat(p, k=25):
 
     for j in xrange(k):
         a = random.randint(2, p - 1)
-        if gcd(a, p) != 1:
+        if _gcd(a, p) != 1:
             return False
 
         result = pow(a, p - 1, p)
@@ -142,7 +141,7 @@ def prime_test_solovay_strassen(p, k=25):
 
     for j in xrange(k):
         a = random.randint(2, p - 1)
-        if gcd(a, p) != 1:
+        if _gcd(a, p) != 1:
             return False
 
         result = pow(a, (p - 1) // 2, p)
@@ -168,7 +167,7 @@ def prime_test_miller_rabin(p, k=25):
 
     for j in range(k):
         a = random.randint(2, p - 2)
-        if gcd(a, p) != 1:
+        if _gcd(a, p) != 1:
             return False
 
         b = pow(a, m, p)
@@ -189,6 +188,41 @@ def prime_test_miller_rabin(p, k=25):
             # result is not 1
             return False
     return True
+
+
+def jacobi(a, n):
+    """
+    Compute the Jacobi symbol.
+    """
+    s = 1
+    while True:
+        if n < 1:
+            raise ValueError("Modulus is too small" +
+                             "to compute the Jacobi symbol: " + str(n))
+        if n & 1 == 0:
+            raise ValueError("The Jacobi symbol is defined" +
+                             "only for odd moduli")
+        if n == 1:
+            return 1
+
+        a %= n
+        if a in (0, 1): return s * a
+
+        if a & 1 == 0:
+            if n % 8 in (3, 5):
+                s = -s
+            a >>= 1
+            continue
+
+        if a % 4 == 3 and n % 4 == 3:
+            s = -s
+
+        a, n = n, a
+    return
+
+
+def legendre(a, p):
+    return jacobi(a, p)
 
 
 prime_test = prime_test_miller_rabin

@@ -7,7 +7,8 @@ from itertools import product
 
 from .compat import xrange
 from .common import *
-from .modular import *
+from .modular import _get_factor_items, invmod, solve_crt
+from .primes import jacobi
 
 
 def has_sqrtmod(a, m, factors=None):
@@ -221,39 +222,3 @@ def sqrtmod_prime_power(a, p, k=1):
             if r == r0:
                 break
     return
-
-
-def jacobi(a, n):
-    """
-    Compute the Jacobi symbol.
-    """
-    while True:
-        if n < 1:
-            raise ValueError("Modulus is too small" +
-                             "to compute the Jacobi symbol: " + str(n))
-        if n & 1 == 0:
-            raise ValueError("The Jacobi symbol is defined" +
-                             "only for odd moduli")
-        if n == 1:
-            return 1
-
-        a %= n
-        if a == 0: return 0
-        if a == 1: return 1
-
-        s = 1
-        if a & 1 == 0:
-            if n % 8 in (3, 5):
-                s = -s
-            a >>= 1
-            continue
-
-        if a % 4 == 3 and n % 4 == 3:
-            s = -s
-
-        a, n = n, a
-    return
-
-
-def legendre(a, p):
-    return jacobi(a, p)

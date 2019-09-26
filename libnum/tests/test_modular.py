@@ -6,6 +6,7 @@ from functools import reduce
 from itertools import combinations_with_replacement
 from libnum import *
 from libnum.compat import xrange
+from libnum.common import _gcd
 from utcompat import *
 
 
@@ -42,7 +43,7 @@ def test_invmod():
 def test_euclid():
     for b in range(1, 1000, 13):
         for a in range(1, 1000, 7):
-            g = gcd(a, b)
+            g = _gcd(a, b)
             x, y, g2 = xgcd(a, b)
             assertEqual(g, g2)
             assertEqual(a * x + b * y, g)
@@ -68,7 +69,8 @@ def test_crt():
         a = solve_crt(rems, moduli)
         for i in xrange(len(moduli)):
             assertEqual(rems[i], a % moduli[i])
-    assertRaises(TypeError, solve_crt, [1, 2, 3], [1, 2])
+    assertRaises(ValueError, solve_crt, [1, 2, 3], [1, 2])
+    assertRaises(ValueError, solve_crt, [1, 2], [1, 2, 3])
     assertRaises(ValueError, solve_crt, [], [])
 
 
@@ -79,7 +81,7 @@ def test_jacobi():
         for a in xrange(modulus):
             sqrs.add((a * a) % modulus)
         for a in xrange(modulus):
-            if gcd(a, modulus) == 1:
+            if _gcd(a, modulus) == 1:
                 real = 1 if a in sqrs else -1
             else:
                 real = 0
