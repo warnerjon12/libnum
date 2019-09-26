@@ -1,6 +1,6 @@
 #-*- coding:utf-8 -*-
 
-from libnum import nroot, gcd
+from libnum import nroot, _gcd
 
 
 def sqrt_chained_fractions(n, limit=None):
@@ -40,7 +40,7 @@ def sqrt_iter(n, s, t, a, b):
     t2 = b
     b2 = t * (n - (b * v - a)**2)
     a2 = b * v - a
-    g = gcd(t2, b2)
+    g = _gcd(t2, b2)
     t2 /= g
     b2 /= g
     return v, (t2, a2, b2)

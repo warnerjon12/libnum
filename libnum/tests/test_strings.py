@@ -1,6 +1,5 @@
 #-*- coding:utf-8 -*-
 
-import pytest
 from libnum import *
 from utcompat import *
 

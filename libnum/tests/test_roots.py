@@ -1,6 +1,5 @@
 #-*- coding:utf-8 -*-
 
-import pytest
 import random
 
 from libnum.compat import xrange
@@ -66,8 +65,9 @@ def test_has_sqrtmod():
 
 
 def test_sqrt_pp_all():
-    print("\nTesting all residues by small modules")
-    for prime, maxpow in [(2, 11), (3, 7), (5, 5), (7, 4), (11, 3), (13, 3), (97, 2)]:
+    print("\nTesting all residues by small moduli")
+    for prime, maxpow in [(2, 11), (3, 7), (5, 5), (7, 4),
+                          (11, 3), (13, 3), (97, 2)]:
         for k in xrange(1, maxpow + 1):
             n = prime ** k
             print("    Testing %s**%s" % (prime, k))
@@ -88,8 +88,9 @@ def test_sqrt_pp_all():
 
 
 def test_sqrt_pp_rand():
-    print("\nTesting random residues by random modules")
-    for size, maxpow in [(2, 500), (10, 100), (64, 15), (128, 5), (129, 5), (256, 2)]:
+    print("\nTesting random residues by random moduli")
+    for size, maxpow in [(2, 500), (10, 100), (64, 15),
+                         (128, 5), (129, 5), (256, 2)]:
         for i in xrange(10):
             p = generate_prime(size, k=25)
             print("    Testing %s-bit prime with max power %s: %s..." %
@@ -102,8 +103,9 @@ def test_sqrt_pp_rand():
 
 
 def test_sqrt_composite_all():
-    print("\nTesting all residues by small composite modules")
-    for n in [10, 30, 50, 99, 100, 655, 1025, 1337, 7 ** 3 * 3, 2 ** 6 * 13, 2 ** 4 * 3 ** 3 * 5, 3 * 3 * 5 * 7, 1024]:
+    print("\nTesting all residues by small composite moduli")
+    for n in [10, 30, 50, 99, 100, 655, 1025, 1337, 7 ** 3 * 3, 2 ** 6 * 13,
+              2 ** 4 * 3 ** 3 * 5, 3 * 3 * 5 * 7, 1024]:
         f = factorize(n)
         print("    Testing %s = %s" % (n, f))
         for x in xrange(n):
@@ -119,7 +121,7 @@ def test_sqrt_composite_all():
 
 
 def test_sqrt_composite_rand():
-    print("\nTesting all residues by random composite modules")
+    print("\nTesting all residues by random composite moduli")
     for size, ntries in [(2, 2), (3, 3), (5, 10), (7, 20), (10, 20)]:
         for i in xrange(ntries):
             n = randint_bits(size)

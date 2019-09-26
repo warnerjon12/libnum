@@ -1,6 +1,5 @@
 #-*- coding:utf-8 -*-
 
-import pytest
 from libnum import *
 from libnum.compat import xrange
 from utcompat import *
@@ -28,7 +27,7 @@ def test_nck():
     row = [1]
     for n in xrange(1, 200):
         row = [0] + row + [0]
-        row = [ row[i - 1] + row[i] for i in xrange(1, len(row)) ]
+        row = [row[i - 1] + row[i] for i in xrange(1, len(row))]
         for i in xrange(len(row)):
             assertEqual(row[i], nCk(n, i))
 

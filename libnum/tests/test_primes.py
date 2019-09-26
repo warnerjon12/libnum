@@ -1,7 +1,5 @@
 #-*- coding:utf-8 -*-
 
-import pytest
-
 from libnum.compat import xrange
 from libnum.primes import *
 from utcompat import *

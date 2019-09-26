@@ -1,6 +1,8 @@
 #-*- coding:utf-8 -*-
 
 import operator
+import random
+
 from itertools import product
 
 from .compat import xrange
@@ -20,7 +22,7 @@ def has_sqrtmod(a, factors=None):
         if p <= 1 or k <= 0:
             raise ValueError("Not valid prime power: %s**%s" % (p, k))
 
-        if has_sqrtmod_prime_power(a, p, k) == False:
+        if not has_sqrtmod_prime_power(a, p, k):
             return False
     return True
 
@@ -154,17 +156,19 @@ def sqrtmod_prime_power(a, p, k=1):
                 next_powind = min(powind * 2, k)
                 # Represent root:  x = +- (r  +  p**powind * t1)
                 b = (a - r**2) % powers[next_powind]
-                b = (b * invmod( 2*r, powers[next_powind] )) % powers[next_powind]
+                b = (b * invmod(2 * r, powers[next_powind])) % \
+                    powers[next_powind]
                 if b:
                     if b % powers[powind]:
                         raise ValueError("No square root for given value")
                     b //= powers[powind]
                     b %= powers[powind]
                     # Represent  t1 = t2 * p**powind + b
-                    # Re-represent root: x = +- [ (r + p**powind * b)  +  t2 * p**(powind*2)  ]
+                    # Re-represent root:
+                    # x = +-[(r + p**powind * b) + t2 * p**(powind*2)]
                     r += powers[powind] * b
                 powind = next_powind
-                # For next round: x = +- (r  +  t2 * p**next_powind)
+                # For next round: x = +-(r  +  t2 * p**next_powind)
             return r % pow_p, (-r) % pow_p
         return
 
@@ -223,15 +227,19 @@ def jacobi(a, n):
     """
     Return Jacobi symbol (or Legendre symbol if n is prime)
     """
-    s = 1
     while True:
-        if n < 1: raise ValueError("Too small module for Jacobi symbol: " + str(n))
-        if n & 1 == 0: raise ValueError("Jacobi is defined only for odd modules")
-        if n == 1: return s
-        a = a % n
-        if a == 0: return 0
-        if a == 1: return s
+        if n < 1:
+            raise ValueError("Too small modulus for Jacobi symbol: " + str(n))
+        if n & 1 == 0:
+            raise ValueError("Jacobi is defined only for odd moduli")
+        if n == 1:
+            return 1
 
+        a %= n
+        if a == 0: return 0
+        if a == 1: return 1
+
+        s = 1
         if a & 1 == 0:
             if n % 8 in (3, 5):
                 s = -s

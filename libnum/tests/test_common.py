@@ -1,6 +1,5 @@
 #-*- coding:utf-8 -*-
 
-import pytest
 import random
 
 from libnum import *
@@ -97,7 +96,8 @@ def test_solve_linear():
                                       for y in range(100)
                                       for z in range(100)], 1000))
     for a, b, c in test_cases:
-        if (a == 0 and b == 0 and c != 0) or ((a or b) and c % _gcd(a, b) != 0):
+        if (a == 0 and b == 0 and c != 0) or \
+           ((a or b) and c % _gcd(a, b) != 0):
             assert solve_linear(a, b, c) is None
         else:
             x, y = solve_linear(a, b, c)

@@ -4,6 +4,7 @@
 import json
 
 from functools import reduce
+from .compat import long
 
 """
 TODO: fix properties for empty

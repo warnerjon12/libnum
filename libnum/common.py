@@ -4,7 +4,7 @@ import math
 import random
 
 from functools import reduce
-from .compat import xrange
+from .compat import xrange, math_log2
 
 
 def len_in_bits(n):
@@ -16,7 +16,7 @@ def len_in_bits(n):
     except AttributeError:
         if n == 0:
             return 0
-        return math.floor(math.log2(n)) + 1
+        return int(math_log2(n)) + 1
 
 
 def randint_bits(size):

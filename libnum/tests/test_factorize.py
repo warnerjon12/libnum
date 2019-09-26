@@ -1,6 +1,5 @@
 #-*- coding:utf-8 -*-
 
-import pytest
 import random
 
 from functools import reduce

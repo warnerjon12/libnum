@@ -1,6 +1,5 @@
 #-*- coding:utf-8 -*-
 
-import pytest
 import random
 
 from functools import reduce
@@ -55,41 +54,41 @@ def test_euclid():
 
 
 def test_crt():
-    for module in [2, 3, 5, 7, 1993]:
-        for a in xrange(module):
-            assertEqual(solve_crt([a], [module]), a)
-            assertEqual(solve_crt([a, 0], [module, 1]), a)
-    modules = [2, 3, 5, 19, 137]
+    for modulus in [2, 3, 5, 7, 1993]:
+        for a in xrange(modulus):
+            assertEqual(solve_crt([a], [modulus]), a)
+            assertEqual(solve_crt([a, 0], [modulus, 1]), a)
+    moduli = [2, 3, 5, 19, 137]
     for i in xrange(1000):
         rems = []
         a = 7
-        for m in modules:
+        for m in moduli:
             rems.append(a % m)
             a += 31337
-        a = solve_crt(rems, modules)
-        for i in xrange(len(modules)):
-            assertEqual(rems[i], a % modules[i])
+        a = solve_crt(rems, moduli)
+        for i in xrange(len(moduli)):
+            assertEqual(rems[i], a % moduli[i])
     assertRaises(TypeError, solve_crt, [1, 2, 3], [1, 2])
     assertRaises(ValueError, solve_crt, [], [])
 
 
 def test_jacobi():
 
-    def test_jacobi_prime(module):
+    def test_jacobi_prime(modulus):
         sqrs = set()
-        for a in xrange(module):
-           sqrs.add((a * a) % module)
-        for a in xrange(module):
-            if gcd(a, module) == 1:
+        for a in xrange(modulus):
+            sqrs.add((a * a) % modulus)
+        for a in xrange(modulus):
+            if gcd(a, modulus) == 1:
                 real = 1 if a in sqrs else -1
             else:
                 real = 0
-            test = jacobi(a, module)
+            test = jacobi(a, modulus)
             assertEqual(real, test)
 
     plist = primes(100) + [293, 1993, 2969, 2971, 9973, 11311]
-    for module in plist[2:]:
-        test_jacobi_prime(module)
+    for modulus in plist[2:]:
+        test_jacobi_prime(modulus)
 
     plist = primes(10)[2:]
     lezhs = {}

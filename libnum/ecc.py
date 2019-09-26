@@ -10,14 +10,13 @@ __all__ = ('NULL_POINT', 'Curve')
 
 NULL_POINT = (None, None)
 
+
 class Curve:
-    def __init__(self, a, b, p, g=None,
-                                 order=None,
-                                 cofactor=None,
-                                 seed=None):
+
+    def __init__(self, a, b, p, g=None, order=None, cofactor=None, seed=None):
         self.a = a
         self.b = b
-        self.module = p
+        self.modulus = p
 
         self.g = g
         self.order = order
@@ -40,7 +39,7 @@ class Curve:
         """
         x1, y1 = p1
         x2, y2 = p2
-        return (x1 == x2 and y1 == -y2 % self.module)
+        return (x1 == x2 and y1 == -y2 % self.modulus)
 
     def check(self, p):
         """
@@ -49,7 +48,7 @@ class Curve:
         x, y = p
         if self.is_null(p):
             return True
-        left = (y ** 2) % self.module
+        left = (y ** 2) % self.modulus
         right = self.right(x)
         return left == right
 
@@ -57,11 +56,11 @@ class Curve:
         """
         Check if there is a point on the curve with given @x coordinate
         """
-        if x > self.module or x < 0:
+        if x > self.modulus or x < 0:
             raise ValueError("Value " + str(x) +
                              " is not in range [0; <modulus>]")
         a = self.right(x)
-        n = self.module
+        n = self.modulus
 
         if not has_sqrtmod_prime_power(a, n):
             return False
@@ -73,7 +72,7 @@ class Curve:
         """
         Right part of the curve equation: x^3 + a*x + b (mod p)
         """
-        return (x ** 3 + self.a * x + self.b) % self.module
+        return (x ** 3 + self.a * x + self.b) % self.modulus
 
     def find_points_in_range(self, start=0, end=None):
         """
@@ -82,11 +81,11 @@ class Curve:
         points = []
 
         if end is None:
-            end = self.module - 1
+            end = self.modulus - 1
 
         for x in xrange(start, end + 1):
             p = self.check_x(x)
-            if p == False:
+            if not p:
                 continue
             points.extend(p)
 
@@ -99,9 +98,9 @@ class Curve:
         points = []
 
         while len(points) < number:
-            x = random.randint(0, self.module)
+            x = random.randint(0, self.modulus)
             p = self.check_x(x)
-            if p == False:
+            if not p:
                 continue
             points.append(p)
 
@@ -125,12 +124,12 @@ class Curve:
 
         l = 0
         if x1 != x2:
-            l = (y2 - y1) * invmod(x2 - x1, self.module)
+            l = (y2 - y1) * invmod(x2 - x1, self.modulus)
         else:
-            l = (3 * x1 ** 2 + self.a) * invmod(2 * y1, self.module)
+            l = (3 * x1 ** 2 + self.a) * invmod(2 * y1, self.modulus)
 
-        x = (l * l - x1 - x2) % self.module
-        y = (l * (x1 - x) - y1) % self.module  # yes, it's that new x
+        x = (l * l - x1 - x2) % self.modulus
+        y = (l * (x1 - x) - y1) % self.modulus # yes, it's that new x
         return (x, y)
 
     def power(self, p, n):

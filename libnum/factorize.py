@@ -65,7 +65,7 @@ def brent_reduce(n, x0=0, m=1, f=None):
     if G == n:
         while True:
             ys = f(ys)
-            g = _gcd(abs(x - ys), n)
+            G = _gcd(abs(x - ys), n)
             if G > 1:
                 break
     return G
@@ -120,7 +120,8 @@ def factorize(n, td_primes=primes(100)):
 
 
 def unfactorize(factors):
-    return reduce(lambda acc, p_e: acc * (p_e[0] ** p_e[1]), factors.items(), 1)
+    return reduce(lambda acc, p_e: acc * (p_e[0] ** p_e[1]),
+                  factors.items(), 1)
 
 
 def is_power(n):

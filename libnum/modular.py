@@ -38,29 +38,29 @@ def invmod(a, n):
         return x % n
 
 
-def solve_crt(remainders, modules):
+def solve_crt(remainders, moduli):
     """
     Solve Chinese Remainder Theorem.
-    @modules and @remainders are lists.
-    @modules must be pairwise coprimes.
+    moduli and remainders are lists.
+    moduli must be pairwise coprime.
     """
-    if len(modules) != len(remainders):
-        raise TypeError("modules and remainders lists must have same len")
+    if len(moduli) != len(remainders):
+        raise TypeError("moduli and remainders lists must have same len")
 
-    if len(modules) == 0:
+    if len(moduli) == 0:
         raise ValueError("Empty lists are given")
 
-    if len(modules) == 1:
+    if len(moduli) == 1:
         return remainders[0]
 
     x = 0
-    N = reduce(operator.mul, modules)
-    for i, module in enumerate(modules):
-        if module == 1:
+    N = reduce(operator.mul, moduli)
+    for i, modulus in enumerate(moduli):
+        if modulus == 1:
             continue
 
-        Ni = N // module
-        b = invmod(Ni, module)
+        Ni = N // modulus
+        b = invmod(Ni, modulus)
 
         x += remainders[i] * Ni * b
     return x % N
@@ -123,7 +123,7 @@ def nCk_mod_prime_power(n, k, p, e):
             acc = (acc * x) % pe
             fact_pe.append(acc)
 
-        top = bottom =1
+        top = bottom = 1
         is_negative = 0
         digits = 0
 

@@ -1,6 +1,6 @@
 #-*- coding:utf-8 -*-
 
-from libnum.compat import basestring
+from .compat import basestring
 
 
 def s2n(s):
