@@ -2,18 +2,20 @@
 
 from libnum.compat import xrange
 from libnum.primes import *
+from libnum.tests.primes10000 import primes10000
 from utcompat import *
 
 
 def test_primes():
-    p = primes(100000)
+    p = primes(primes10000[-1])
+    assertEqual(len(p), len(primes10000))
     assertEqual(p[0], 2)
-    assertEqual(len(p), 9592)
-    assertEqual(p[9591], 99991) # 9592th prime number
-    assertRaises(TypeError, primes, "")
+    assert all(p[i] == pt for i, pt in enumerate(primes10000))
 
-    assertEqual(primes(-1), [])
-    assertEqual(primes(1), [])
+    assertEqual(list(primes(-1)), [])
+    assertEqual(list(primes(1)), [])
+    assertEqual(list(primes(2)), [2])
+    assertRaises(TypeError, primes, "")
     assertRaises(TypeError, primes, 1000000, "fake")
 
 

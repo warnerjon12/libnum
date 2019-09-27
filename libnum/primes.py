@@ -1,10 +1,10 @@
 #-*- coding:utf-8 -*-
 
-import math
 import random
 import operator
 
 from functools import reduce
+from bisect import bisect
 from .common import _gcd, len_in_bits, extract_prime_power, randint_bits
 from .compat import xrange
 from .strings import *
@@ -17,39 +17,56 @@ _primes_mask = []
 
 def _init():
     global _small_primes_product, _primes, _primes_bits, _primes_mask
-    _primes = primes(1024)
-    for p in _primes:
+    for p in primes(1024, setglobal=True):
         _primes_bits[len_in_bits(p)].append(p)
     _small_primes_product = reduce(operator.mul, _primes)
     _primes_mask = [(x in _primes) for x in xrange(_primes[-1] + 1)]
+    primes(100000, setglobal=True)
     return
 
 
-def primes(until):
+def primes(max, k=25, setglobal=False):
     """
-    Return a list of primes not greater than until. Rather slow.
+    Return a list of primes not greater than max.
+    Optional argument k (default 25) determines
+    the number of rounds used in primality testing.
+    Optional argument setglobal specifies whether or
+    not to add new primes to the global variable _primes.
     """
     global _primes, _primes_mask
+    try:
+        max = int(max)
+    except ValueError:
+        raise TypeError("%s is not a number" % repr(max))
 
-    if until < 2:
+    if max < 2:
         return []
 
-    if until <= _primes[-1]:
-        for index, prime in enumerate(_primes):
-            if prime > until:
-                return _primes[:index]
+    if max <= _primes[-1]:
+        return _primes[:bisect(_primes, max)]
 
-    i = _primes[-1]
-    while i < until + 1:
-        i += 2
-        sqrt = math.sqrt(i) + 1
-        for j in _primes:
-            if i % j == 0:
-                break
-            if j > sqrt:
-                _primes.append(i)
-                break
-    return _primes
+    if setglobal:
+        plist = _primes
+    else:
+        plist = _primes[:]
+
+    pmod30 = (1, 7, 11, 13, 17, 19, 23, 29)
+
+    m30 = _primes[-1] % 30
+    p = _primes[-1] - m30
+    i = bisect(pmod30, m30)
+    if i == 8:
+        p += 30
+        i = 0
+    while p < max:
+        for j in range(i, 8):
+            q = p + pmod30[j]
+            if prime_test(q, k):
+                plist.append(q)
+        p += 30
+        i = 0
+    # Possibly went too far. Also causes the list to be copied.
+    return plist[:bisect(plist, max)]
 
 
 def generate_prime(size, k=25):
