@@ -13,6 +13,9 @@ python runtests.py -profile
 python runtests.py -local
   Insert "../.." at the beginning of sys.path to use local libnum
 
+python runtests.py -testdir <test directory>
+  Run tests from the given test directory
+
 python runtests.py -verbose
   Do not suppress printing from within tests
 
@@ -42,13 +45,18 @@ if "-local" in sys.argv:
 else:
     importdir = ""
 
+if "-testdir" in sys.argv:
+    idx = sys.argv.index("-testdir")
+    testdir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]),
+                                           sys.argv[idx + 1]))
+    sys.argv = sys.argv[:idx] + sys.argv[(idx + 2):]
+else:
+    testdir = ""
+
 verbose = False
 if "-verbose" in sys.argv:
     sys.argv.remove("-verbose")
     verbose = True
-
-# TODO: add a flag for this
-testdir = ""
 
 def testit(importdir="", testdir=""):
     """Run all tests in testdir while importing from importdir."""
